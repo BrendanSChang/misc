@@ -99,6 +99,7 @@ def tcpBandwidthTest():
         if host:
             print "<%s>: %s" % (host.name, line.strip())
             results[0][host.name] = line.strip()
+
     # Find the ratio of the reported bandwidths.
     results[0]["ratio"] = (float(results[0]["h1"].split()[6]) /
         float(results[0]["h2"].split()[6]))
@@ -114,6 +115,7 @@ def tcpBandwidthTest():
         if host:
             print "<%s>: %s" % (host.name, line.strip())
             results[1][host.name] = line.strip()
+
     # The units and format of the h1 response is slightly different from
     # the case above.
     results[1]["ratio"] = (1000 * float(results[1]["h1"].split()[5]) /
