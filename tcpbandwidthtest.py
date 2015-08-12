@@ -58,11 +58,14 @@ def tcpBandwidthTest():
     topo = ThroughputTestTopo()
 
     # Select TCP Reno
+    # (This is copied over from the linearbandwidth.py example, I don't
+    # know if it applies here.)
     output = quietRun("sysctl -w net.ipv4.tcp_congestion_control=reno")
     assert "reno" in output
 
     Switch = OVSKernelSwitch
 
+    # Currently there is no link delay introduced.
     # link = partial(TCLink, delay='1ms')
     net = Mininet(topo=topo, switch=Switch,
         controller=Controller, waitConnected=True)  #, link=link )
@@ -96,6 +99,7 @@ def tcpBandwidthTest():
         if host:
             print "<%s>: %s" % (host.name, line.strip())
             results[0][host.name] = line.strip()
+    # Find the ratio of the reported bandwidths.
     results[0]["ratio"] = (float(results[0]["h1"].split()[6]) /
         float(results[0]["h2"].split()[6]))
 
@@ -110,6 +114,8 @@ def tcpBandwidthTest():
         if host:
             print "<%s>: %s" % (host.name, line.strip())
             results[1][host.name] = line.strip()
+    # The units and format of the h1 response is slightly different from
+    # the case above.
     results[1]["ratio"] = (1000 * float(results[1]["h1"].split()[5]) /
         float(results[1]["h2"].split()[6]))
 
@@ -128,6 +134,6 @@ def tcpBandwidthTest():
     print "Throughput ratio h1/h2: %f" % results[1]["ratio"]
 
 if __name__ == '__main__':
-    lg.setLogLevel( 'info' )
+    lg.setLogLevel('info')
     print "*** Running tcpBandwidthTest"
     tcpBandwidthTest()
