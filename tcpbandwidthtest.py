@@ -118,7 +118,7 @@ def tcpBandwidthTest():
 
     # The units and format of the h1 response is slightly different from
     # the case above.
-    results[1]["ratio"] = (1000 * float(results[1]["h1"].split()[5]) /
+    results[1]["ratio"] = (float(results[1]["h1"].split()[5]) /
         float(results[1]["h2"].split()[6]))
 
     net.stop()
