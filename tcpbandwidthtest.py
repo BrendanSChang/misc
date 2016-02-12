@@ -1,141 +1,156 @@
-#!/usr/bin/python
+'''
+This script is adapted from mininettcpbandwidthtest.py
 
-"""
-Test the hypothesis that TCP allocates bandwidth linearly with respect
-to the number of connections. This test treats h1-h3 and h2-h4 as
-separate tenants in this network. We use iperf to compare the bandwidth
-of each connection, first with a single connection running on each
-tenant and then with a 10-to-1 connection ratio.
+It is meant to run the same TCP bandwidth allocation tests in an environment
+with two logically isolated networks:
 
-We construct a network of 4 hosts and 2 switches, connected as follows:
+  HV1            HV2
+ -----          -----
+ | A | -- r1 -- | C |
+ |   |          |   |
+ | B | -- r2 -- | D |
+ -----          -----
 
-h1                h3
-  \             /
-    - s1 -- s2 -
-  /             \
-h2                h4
+where HV1 and HV2 are two hypervisors hosting two VMs each. VMs A and B reside
+on HV1 while VMs C and D reside on HV2. A and C form one logical network
+connected by logical router r1 and B and D form the other logical network
+connected by logical router r2.
 
-"""
+Our test environment uses Openstack (Devstack) with OVN for L3 capabilities.
+Therefore, we are effectively using a network deployed on OVS and OVN, where
+logical routers are created as OVS switches.
 
-from mininet.net import Mininet
-from mininet.node import Controller, OVSKernelSwitch
-from mininet.topo import Topo
-from mininet.log import lg
-from mininet.util import pmonitor, quietRun
-# from mininet.link import TCLink
-# from functools import partial
+The tests run iperf across each logical network simultaneously to gauge the
+allocation of bandwidth when there is an even and uneven ratio of open TCP
+connections in each network (specifically 1:1 and 10:1). We expect that the
+allocations should follow in the same proportions.
 
-import sys
-flush = sys.stdout.flush
+Note that this assumes that the physical network should have the following
+configuration:
 
-class ThroughputTestTopo(Topo):
-    "Topology for two switches, each with two hosts."
+HV1 -- sw1 -- sw2 -- HV2
 
-    def __init__(self):
-        # Initialize topology.
-        Topo.__init__(self)
+where the link between the switches sw1 and sw2 is the bottleneck link.
 
-        # Add hosts.
-        h1 = self.addHost("h1")
-        h2 = self.addHost("h2")
-        h3 = self.addHost("h3")
-        h4 = self.addHost("h4")
+'''
 
-        # Add switches.
-        s1 = self.addSwitch("s1")
-        s2 = self.addSwitch("s2")
+import paramiko
+from threading import Thread
 
-        # Add links.
-        self.addLink(h1, s1)
-        self.addLink(h2, s1)
-        self.addLink(h3, s2)
-        self.addLink(h4, s2)
-        self.addLink(s1, s2)
+
+KEY_PATH = "/home/ubuntu/devstack/id_rsa_test"
+
+output = {}
+
+
+def run(ssh, host, server, parallel=False):
+    cmd = "iperf -c " + server
+    if parallel:
+        cmd += " -P 10"
+    stdin, stdout, stderr = ssh.exec_command(cmd);
+    output[host] = stdout.read().splitlines()
+
 
 def tcpBandwidthTest():
-    "Test TCP throughput with different numbers of connections."
+    clients = ["172.24.4.3", "172.24.4.4"]
+    servers_pub = ["172.24.4.5", "172.24.4.6"]
+    servers_priv = ["10.0.2.6", "10.0.1.4"]
 
-    topo = ThroughputTestTopo()
+    # Start iperf servers.
+    # exec_command is non-blocking, so these do not need to be multithreaded.
+    print "Starting iperf servers"
+    server_sessions = []
+    for s in servers_pub:
+        ssh = paramiko.SSHClient()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        ssh.connect(s, username="ubuntu", key_filename=KEY_PATH)
+        ssh.exec_command("iperf -s")
+        server_sessions.append(ssh)
 
-    # Select TCP Reno
-    # (This is copied over from the linearbandwidth.py example, I don't
-    # know if it applies here.)
-    output = quietRun("sysctl -w net.ipv4.tcp_congestion_control=reno")
-    assert "reno" in output
+    # Open the client sessions.
+    print "Starting client sessions"
+    client_sessions = []
+    for c in clients:
+        ssh = paramiko.SSHClient()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        ssh.connect(c, username="ubuntu", key_filename=KEY_PATH)
+        client_sessions.append(ssh)
 
-    Switch = OVSKernelSwitch
+    # Prime the connections.
+    print "Priming for tests"
+    for i in range(len(client_sessions)):
+        client_sessions[i].exec_command("telnet " + servers_priv[i] + " 5001")
 
-    # Currently there is no link delay introduced.
-    # link = partial(TCLink, delay='1ms')
-    net = Mininet(topo=topo, switch=Switch,
-        controller=Controller, waitConnected=True)  #, link=link )
-    net.start()
+    # Run 1:1 test.
+    print "\nTesting 1:1 connection bandwidth"
+    threads = []
+    for i in range(len(client_sessions)):
+        t = Thread(
+                target=run,
+                args=(client_sessions[i], clients[i], servers_priv[i])
+            )
+        threads.append(t)
 
-    print "*** testing basic connectivity"
-    net.ping([net.get("h1"), net.get("h3")])
-    net.ping([net.get("h2"), net.get("h4")])
+    for t in threads:
+        t.start()
 
-    print "\n*** priming for tests"
-    # Try to prime the pump to reduce PACKET_INs during test
-    # since the reference controller is reactive
-    net.get("h1").cmd("telnet", net.get("h3").IP(), "5001")
-    net.get("h2").cmd("telnet", net.get("h4").IP(), "5001")
+    for t in threads:
+        t.join()
 
-    # Set up iperf servers.
-    net.get("h3").popen("iperf -s")
-    net.get("h4").popen("iperf -s")
-
-    popens = {}
+    # Parse output.
     results = []
+    for c in clients:
+        print "\nHost: %s" % c
+        for line in output[c]:
+            print line
+        results.append(float(output[c][-1].strip().split()[6]))
+    print "\nThroughput ratio h1/h2: %f" % (results[0]/results[1])
 
-    print "\n*** testing 1:1 connection bandwidth"
-    popens[net.get("h1")] = net.get("h1").popen(
-            "iperf -c %s" % net.get("h3").IP())
-    popens[net.get("h2")] = net.get("h2").popen(
-            "iperf -c %s" % net.get("h4").IP())
+    # Run 10:1 test.
+    print "\nTesting 10:1 connection bandwidth"
+    for i in range(len(client_sessions)):
+        t = Thread(
+                target=run,
+                args=(
+                    client_sessions[i],
+                    clients[i],
+                    servers_priv[i],
+                    (i%2 == 0)
+                )
+            )
+        threads[i] = t
 
-    results.append({})
-    for host, line in pmonitor(popens):
-        if host:
-            print "<%s>: %s" % (host.name, line.strip())
-            results[0][host.name] = line.strip()
+    for t in threads:
+        t.start()
 
-    # Find the ratio of the reported bandwidths.
-    results[0]["ratio"] = (float(results[0]["h1"].split()[6]) /
-        float(results[0]["h2"].split()[6]))
+    for t in threads:
+        t.join()
 
-    print "\n*** testing 10:1 connection bandwidth"
-    popens[net.get("h1")] = net.get("h1").popen(
-            "iperf -c %s -P 10" % net.get("h3").IP())
-    popens[net.get("h2")] = net.get("h2").popen(
-            "iperf -c %s" % net.get("h4").IP())
+    # Parse output.
+    # In this case, the output formats are slightly different so we treat each
+    # case individually.
+    print "\nHost: %s" % clients[0]
+    for line in output[clients[0]]:
+        print line
+    results[0] = float(output[clients[0]][-1].strip().split()[5])
+    
+    print "\nHost: %s" % clients[1]
+    for line in output[clients[1]]:
+        print line
+    results[1] = float(output[clients[1]][-1].strip().split()[6])
+    print "\nThroughput ratio h1/h2: %f" % (results[0]/results[1])
 
-    results.append({})
-    for host, line in pmonitor(popens):
-        if host:
-            print "<%s>: %s" % (host.name, line.strip())
-            results[1][host.name] = line.strip()
+    # Close connections.
+    print "\nClosing connections"
+    for c in client_sessions:
+        c.close()
 
-    # The units and format of the h1 response is slightly different from
-    # the case above.
-    results[1]["ratio"] = (float(results[1]["h1"].split()[5]) /
-        float(results[1]["h2"].split()[6]))
+    for s in server_sessions:
+        s.exec_command("pkill iperf")
+        s.close()
 
-    net.stop()
 
-    print "\n*** results"
-    print "1:1 connection throughput:"
-    print "      [ ID] Interval       Transfer     Bandwidth"
-    print "<h1>: %s" % results[0]["h1"]
-    print "<h2>: %s" % results[0]["h2"]
-    print "Throughput ratio h1/h2: %f" % results[0]["ratio"]
-    print "\n10:1 connection throughput:"
-    print "      [ ID] Interval       Transfer     Bandwidth"
-    print "<h1>: %s" % results[1]["h1"]
-    print "<h2>: %s" % results[1]["h2"]
-    print "Throughput ratio h1/h2: %f" % results[1]["ratio"]
-
-if __name__ == '__main__':
-    lg.setLogLevel('info')
-    print "*** Running tcpBandwidthTest"
+if __name__ == "__main__":
+    print "Running tcpBandwidthTest"
     tcpBandwidthTest()
+
