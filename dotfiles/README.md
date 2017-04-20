@@ -2,15 +2,15 @@
 Vim and tmux configuration files.
 
 The setup here is based off of the instructions from this repository:
-[https://github.com/jez/vim-as-an-ide vim-as-an-ide].
+[vim-as-an-ide](https://github.com/jez/vim-as-an-ide).
 
 The vim setup uses Vundle for plugin management. It is configured to use the
 solarized colorscheme. For GNOME, the terminal was configured via the script/
 instructions at
-[https://github.com/Anthony25/gnome-terminal-colors-solarized gnome-terminal-colors-solarized].
+[gnome-terminal-colors-solarized](https://github.com/Anthony25/gnome-terminal-colors-solarized).
 The patched font used for airline and tmuxline is Ubuntu Mono for Powerline,
 found at
-[https://github.com/pdf/ubuntu-mono-powerline-ttf ubuntu-mono-powerline-ttf].
+[ubuntu-mono-powerline-ttf](https://github.com/pdf/ubuntu-mono-powerline-ttf).
 
 For simplicity, running `setup.sh` should take care of most things, but it is
 a bit crude. A couple of things to note:
