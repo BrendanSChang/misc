@@ -1,13 +1,5 @@
 set nocompatible
 
-" Install vim-plug if it's not already installed.
-" Might have to add --insecure and set $GIT_SSL_NO_VERIFY=true
-if empty(glob('~/.vim/autoload/plug.vim'))
-    silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
-        https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-    autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
-endif
-
 call plug#begin('~/.vim/plugged')
 
 " Look and feel
@@ -36,7 +28,7 @@ Plug 'ctrlpvim/ctrlp.vim'
 Plug 'vim-scripts/a.vim'
 
 " Git plugins
-Plug 'airblade/vim-gitgutter'
+Plug 'mhinz/vim-signify'
 " Check out repository for aliases
 Plug 'tpope/vim-fugitive'
 
@@ -155,7 +147,7 @@ endif
 " Don't search these files
 set wildignore+=*/.git/*,*/.svn/*,*/tmp/*,*.swp
 
-" airblade/vim-gitgutter
+" mhinz/vim-signify
 " In vim-airline, only display "hunks" if the diff is non-zero
 let g:airline#extensions#hunks#non_zero_only=1
 
