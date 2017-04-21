@@ -12,8 +12,8 @@ The patched font used for airline and tmuxline is Ubuntu Mono for Powerline,
 found at
 [ubuntu-mono-powerline-ttf](https://github.com/pdf/ubuntu-mono-powerline-ttf).
 
-For simplicity, running `setup.sh` should take care of most things, but it is
-a bit crude. A couple of things to note:
+For simplicity, running `setup-ubuntu.sh` should take care of most things, but
+it is a bit crude. A couple of things to note:
 
 - The setup script is currently configured for Ubuntu (tested on 17.04) with
 GNOME as the terminal emulator
