@@ -25,3 +25,5 @@ patched font
 directory for the GNOME terminal settings)
 - The last thing the script does is install the plugins, which will probably
 leave you in a Vim session, so just `:qall` to exit
+- You may also have to install YCM if it's throwing errors, in which case
+navigate to ~/.vim/plugged/YouCompleteMe and run ./install.py --clang-completer
