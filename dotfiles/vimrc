@@ -85,6 +85,9 @@ inoremap ;l <Esc>`^
 
 autocmd Filetype cpp setlocal softtabstop=2 tabstop=2 shiftwidth=2
 
+autocmd BufReadPre *SConscript set syntax=python
+autocmd BufReadPre *SConstruct set syntax=python
+
 set mouse=a
 
 hi clear SignColumn
@@ -125,6 +128,13 @@ augroup mySyntastic
     au!
     au FileType tex let b:syntastic_mode="passive"
 augroup END
+" Automatically populate errors in location list
+" Navigate errors by :lnext and :lprev
+"let g:syntastic_always_populate_loc_list=1
+"let g:syntastic_auto_loc_list=1
+" Check for errors on open instead of close
+let g:syntastic_check_on_open=1
+let g:syntastic_check_on_wq=0
 
 " xolox/vim-easytags
 " Where to find tags
@@ -156,6 +166,7 @@ set wildignore+=*/.git/*,*/.svn/*,*/tmp/*,*.swp
 " mhinz/vim-signify
 " In vim-airline, only display "hunks" if the diff is non-zero
 let g:airline#extensions#hunks#non_zero_only=1
+let g:signify_vcs_list=['git','svn']
 
 " Raimondi/delimitMate
 let delimitMate_expand_Cr=1
