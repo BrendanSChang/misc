@@ -27,3 +27,14 @@ directory for the GNOME terminal settings)
 leave you in a Vim session, so just `:qall` to exit
 - You may also have to install YCM if it's throwing errors, in which case
 navigate to ~/.vim/plugged/YouCompleteMe and run ./install.py --clang-completer
+
+To setup on Cygwin:
+
+- Unless curl is installed, plug will have to be manually downloaded
+- The patched font will also have to be manually installed and set via options
+- Instead of configuring GNOME with solarized, a MinTTY configuration should be
+used (such as
+[mintty-colors-solarized](https://github.com/karlin/mintty-colors-solarized))
+- ctags and tmux should be installed through the Cygwin package manager, which
+is accessible through the Cygwin setup
+- YouCompleteMe has not been tested yet
