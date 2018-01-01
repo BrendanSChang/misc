@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Install all the dependencies
-sudo apt-get install git dconf-cli tmux vim build_essential cmake \
+sudo apt-get install git dconf-cli tmux vim build-essential cmake \
     python-dev python3-dev exuberant-ctags
 
 # Install vim-plug

@@ -19,7 +19,8 @@ Plug 'scrooloose/nerdtree'
 Plug 'jistr/vim-nerdtree-tabs'
 
 " Error checking
-Plug 'vim-syntastic/syntastic'
+" Plug 'vim-syntastic/syntastic'
+Plug 'w0rp/ale'
 
 " Tagging/symbols
 Plug 'xolox/vim-misc'
@@ -28,7 +29,9 @@ Plug 'majutsushi/tagbar'
 
 " File search
 " <C-p> to search, enter to open file or <C-t> to open in a new tab
-Plug 'ctrlpvim/ctrlp.vim'
+" Plug 'ctrlpvim/ctrlp.vim'
+Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
+Plug 'junegunn/fzf.vim'
 
 " Automatically open corresponding header/source file with :AT
 Plug 'vim-scripts/a.vim'
@@ -49,6 +52,7 @@ Plug 'christoomey/vim-tmux-navigator'
 
 " Syntax plugins
 " None for now...add plugins if you need support for other languages
+Plug 'sheerun/vim-polyglot'
 
 " Highlight and clear trailing whitespace
 Plug 'ntpeters/vim-better-whitespace'
@@ -122,19 +126,27 @@ nmap <silent> <leader>t :NERDTreeTabsToggle<CR>
 let g:nerdtree_tabs_open_on_console_startup=1
 
 " scrooloose/syntastic
-let g:syntastic_error_symbol='✘'
-let g:syntastic_warning_symbol='▲'
-augroup mySyntastic
-    au!
-    au FileType tex let b:syntastic_mode="passive"
-augroup END
+" let g:syntastic_error_symbol='✘'
+" let g:syntastic_warning_symbol='▲'
+" augroup mySyntastic
+"     au!
+"     au FileType tex let b:syntastic_mode="passive"
+" augroup END
+
 " Automatically populate errors in location list
 " Navigate errors by :lnext and :lprev
 "let g:syntastic_always_populate_loc_list=1
 "let g:syntastic_auto_loc_list=1
 " Check for errors on open instead of close
-let g:syntastic_check_on_open=1
-let g:syntastic_check_on_wq=0
+" let g:syntastic_check_on_open=1
+" let g:syntastic_check_on_wq=0
+
+" w0rp/ale
+let g:ale_sign_error='✘'
+let g:ale_sign_warning='▲'
+highlight clear ALEErrorSign
+highlight clear ALEWarningSign
+" let g:ale_lint_on_text_changed='never'
 
 " xolox/vim-easytags
 " Where to find tags
@@ -154,10 +166,24 @@ nmap <silent> <leader>b :TagbarToggle<CR>
 
 " ctrlpvim/ctrlp
 " Set CtrlP to use ripgrep if available
+" junegunn/fzf
+" Use ripgrep if available
+" --column: Show column number
+" --line-number: Show line number
+" --no-heading: Do not show file headings in results
+" --fixed-strings: Search term as a literal string
+" --ignore-case: Case insensitive search
+" --no-ignore: Do not respect .gitignore, etc...
+" --hidden: Search hidden files and folders
+" --follow: Follow symlinks
+" --glob: Additional conditions for search (in this case ignore everything in the .git/ folder)
+" --color: Search color options
 if executable('rg')
-    set grepprg=rg\ --color=never
-    let g:ctrlp_user_command='rg %s --files --color=never --glob ""'
-    let g:ctrlp_use_caching=0
+"     set grepprg=rg\ --color=never
+    set grepprg=rg\ --vimgrep
+"     let g:ctrlp_user_command='rg %s --files --color=never --glob ""'
+"     let g:ctrlp_use_caching=0
+    command! -bang -nargs=* Find call fzf#vim#grep('rg --column --line-number --no-heading --fixed-strings --ignore-case --no-ignore --hidden --follow --glob "!.git/*" --color "always" '.shellescape(<q-args>).'| tr -d "\017"', 1, <bang>0)
 endif
 
 " Don't search these files
