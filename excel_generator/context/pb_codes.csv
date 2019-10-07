@@ -1,0 +1,15 @@
+# Country, Non-PB Office Code, PB Market Code, PB Market Description
+country, office_code, market_code, market_desc
+Australia, O.P_AN, 69911_AGGR, CS Australia & EAM AU (TF) (69911)
+India, O.P_SA_IND, 63620_AGGR, CS India (TF) (63620)
+Singapore, O.P_SA_SGP, 60637_AGGR, Singapore Market (TF) (60637)
+Indonesia, O.P_SA_INO, 60284_AGGR, Indonesia Market (TF) (60284)
+Malaysia, O.P_SA_MAL, 60577_AGGR, Malaysia Market (TF) (60577)
+Thailand, O.P_SA_THI, 60008_AGGR, Thailand (TF) (60008)
+Philippines, O.P_SA_PHI, 60089_AGGR, Philippines Market (TF) (60089)
+Vietnam, O.P_SA_VIE, , 
+Frontier Markets, O.P_NJ_OA, , 
+SEA & FM, O.P_NJ_SEAFM, 60912_AGGR, South East Asia (TF) (60912)
+Greater China, O.P_NJ_GCN, 60958_AGGR, Greater China (TF) (60958)
+Japan, O.P_JP, 63690_AGGR, CS Japan (TF) (63690)
+Korea, O.P_NJ_KOR, , 

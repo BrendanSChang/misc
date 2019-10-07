@@ -1,0 +1,24 @@
+country, Country
+month, Month
+month_abbv, Month (short desc)
+curr_yr, Curr Year
+prior_yr, Prior Year
+non_pb_office_code, Non-PB Retrieval Office Code
+pb_market_code, PB Retrieval Market Code
+qtd_months, No. of mths - QTD
+ytd_months, No. of mths - YTD
+last_qtr, Last finalised Quarter
+mtd, MTD Title
+mtd_essbase_yr, MTD Essbase Dimension - Yr
+mtd_essbase_mth, MTD Essbase Dimension - Mth
+qtd, QTD Title
+qtd_essbase_yr, QTD Essbase Dimension - Yr
+qtd_essbase_mth, QTD Essbase Dimension - Mth
+pb_qtr_months, PB QTR Months
+ytd, YTD Title
+ytd_essbase_yr, YTD Essbase Dimension - Yr
+ytd_essbase_mth, YTD Essbase Dimension - Mth
+prior_qtrly, Prior Quarterly Performance Title
+prior_qtrly_yr, Prior Quarterly Performance Title - Yr
+prior_qtrly_qtr, Prior Quarterly Performance Title - QTR
+hist_perf_yr, Historical Performance - Yr
