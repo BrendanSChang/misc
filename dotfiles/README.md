@@ -38,3 +38,5 @@ used (such as
 - ctags and tmux should be installed through the Cygwin package manager, which
 is accessible through the Cygwin setup
 - YouCompleteMe has not been tested yet
+
+> TODO(brendan): Out of date, currently now using gruvbox and starship
