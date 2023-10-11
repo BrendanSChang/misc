@@ -122,11 +122,20 @@ let g:airline#extensions#tabline#enabled=1
 " Use solarized theme for status bar
 let g:airline_theme='solarized'
 
-" jistr/vim-nerdtree-labs
+" preservim/nerdtree
 " Toggle NERDTree with \t
-nmap <silent> <leader>t :NERDTreeTabsToggle<CR>
+nmap <silent> <leader>t :NERDTreeToggle<CR>
 " Always have NERDTree open on startup
-let g:nerdtree_tabs_open_on_console_startup=1
+autocmd VimEnter * NERDTree | wincmd p
+" Open the existing NERDTree on each new tab
+autocmd BufWinEnter * if &buftype != 'quickfix' && getcmdwintype() == '' | silent NERDTreeMirror | endif
+" Exit Vim if NERDTree is the only window remaining in the only tab
+autocmd BufEnter * if tabpagenr('$') == 1 && winnr('$') == 1 && exists('b:NERDTree') && b:NERDTree.isTabTree() | quit | endif
+" Close the tab if NERDTree is the only window remaining in it
+" Use feedkeys instead of quit to avoid issues with E1312 post Vim 9.0.0907
+" (see https://groups.google.com/g/vim_dev/c/Cw8McBH6DDM). The following <C-l>
+" is to move the cursor out of NERDTree and back to the main tab.
+autocmd BufEnter * if winnr('$') == 1 && exists('b:NERDTree') && b:NERDTree.isTabTree() | call feedkeys(":quit\<CR>\<C-l>") | endif
 
 " scrooloose/syntastic
 " let g:syntastic_error_symbol='✘'
