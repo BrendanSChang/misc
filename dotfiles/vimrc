@@ -15,17 +15,16 @@ Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 
 " Source tree
-Plug 'scrooloose/nerdtree'
-Plug 'jistr/vim-nerdtree-tabs'
+Plug 'preservim/nerdtree'
 
 " Error checking
 " Plug 'vim-syntastic/syntastic'
 Plug 'w0rp/ale'
 
 " Tagging/symbols
-Plug 'xolox/vim-misc'
-Plug 'xolox/vim-easytags'
-Plug 'majutsushi/tagbar'
+" Plug 'xolox/vim-misc'
+" Plug 'xolox/vim-easytags'
+" Plug 'majutsushi/tagbar'
 
 " File search
 " <C-p> to search, enter to open file or <C-t> to open in a new tab
